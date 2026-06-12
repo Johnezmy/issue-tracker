@@ -4,6 +4,7 @@ const express     = require('express');
 const bodyParser  = require('body-parser');
 const expect      = require('chai').expect;
 const cors        = require('cors');
+const mongoose    = require('mongoose');
 require('dotenv').config();
 
 const apiRoutes         = require('./routes/api.js');
@@ -15,8 +16,6 @@ let app = express();
 app.use('/public', express.static(process.cwd() + '/public'));
 
 app.use(cors({origin: '*'})); //For FCC testing purposes only
-
-
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -46,20 +45,31 @@ app.use(function(req, res, next) {
     .send('Not Found');
 });
 
-//Start our server and tests!
-const listener = app.listen(process.env.PORT || 3000, function () {
-  console.log('Your app is listening on port ' + listener.address().port);
-  if(process.env.NODE_ENV==='test') {
-    console.log('Running Tests...');
-    setTimeout(function () {
-      try {
-        runner.run();
-      } catch(e) {
-        console.log('Tests are not valid:');
-        console.error(e);
-      }
-    }, 3500);
-  }
-});
+// Establish Mongoose Connection & Start Server Sequentially
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => {
+    console.log("Database connected successfully! 🎉");
 
-module.exports = app; //for testing
+    // Only open the port and execute tests after database authentication succeeds
+    const listener = app.listen(process.env.PORT || 3000, function () {
+      console.log('Your app is listening on port ' + listener.address().port);
+      
+      if (process.env.NODE_ENV === 'test') {
+        console.log('Running Tests...');
+        setTimeout(function () {
+          try {
+            runner.run();
+          } catch(e) {
+            console.log('Tests are not valid:');
+            console.error(e);
+          }
+        }, 1500); // 1.5 seconds is perfect now that the connection is active
+      }
+    });
+  })
+  .catch(err => {
+    console.error("❌ DATABASE INITIAL CONNECTION CRASH:");
+    console.error(err);
+  });
+
+module.exports = app; // for testing
