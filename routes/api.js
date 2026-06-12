@@ -85,9 +85,9 @@ module.exports = function (app) {
       });
 
       // Rule Check: Ensure at least one update property field is provided (FCCTesting Match string)
-      if (Object.keys(filteredUpdate).length === 0) {
-        return res.json({ error: 'no fields update', '_id': _id });
-      }
+   if (Object.keys(filteredUpdate).length === 0) {
+  return res.json({ error: 'no update field(s) sent', '_id': _id });
+}
 
       // Fallback Validation: Safeguard against malformed casting lengths causing a 500
       if (!mongoose.Types.ObjectId.isValid(_id)) {
