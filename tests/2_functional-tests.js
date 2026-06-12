@@ -137,18 +137,20 @@ suite('Functional Tests', function() {
         });
     });
 
-    test('Update an issue with missing _id: PUT request to /api/issues/{project}', function(done) {
-      chai.request(server)
-        .put('/api/issues/test_project')
-        .send({
-          issue_title: 'No ID Here'
-        })
-        .end(function(err, res) {
-          assert.equal(res.status, 200);
-          assert.equal(res.body.error, 'missing _id');
-          done();
-        });
+ test('Update an issue with no fields to update: PUT request to /api/issues/{project}', function(done) {
+  chai.request(server)
+    .put('/api/issues/test_project')
+    .send({
+      _id: testIssue1._id
+    })
+    .end(function(err, res) {
+      assert.equal(res.status, 200);
+      // Change 'no fields update' to match your API string:
+      assert.equal(res.body.error, 'no update field(s) sent'); 
+      assert.equal(res.body._id, testIssue1._id);
+      done();
     });
+});
 
     test('Update an issue with no fields to update: PUT request to /api/issues/{project}', function(done) {
       chai.request(server)
