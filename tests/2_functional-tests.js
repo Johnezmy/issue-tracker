@@ -105,7 +105,7 @@ suite('Functional Tests', function() {
 
   });
 
-  suite('Routing Tests - PUT requests to /api/issues/{project}', function() {
+ suite('Routing Tests - PUT requests to /api/issues/{project}', function() {
 
     test('Update one field on an issue: PUT request to /api/issues/{project}', function(done) {
       chai.request(server)
@@ -137,20 +137,18 @@ suite('Functional Tests', function() {
         });
     });
 
- test('Update an issue with no fields to update: PUT request to /api/issues/{project}', function(done) {
-  chai.request(server)
-    .put('/api/issues/test_project')
-    .send({
-      _id: testIssue1._id
-    })
-    .end(function(err, res) {
-      assert.equal(res.status, 200);
-      // Change 'no fields update' to match your API string:
-      assert.equal(res.body.error, 'no update field(s) sent'); 
-      assert.equal(res.body._id, testIssue1._id);
-      done();
+    test('Update an issue with missing _id: PUT request to /api/issues/{project}', function(done) {
+      chai.request(server)
+        .put('/api/issues/test_project')
+        .send({
+          issue_title: 'No ID Here'
+        })
+        .end(function(err, res) {
+          assert.equal(res.status, 200);
+          assert.equal(res.body.error, 'missing _id');
+          done();
+        });
     });
-});
 
     test('Update an issue with no fields to update: PUT request to /api/issues/{project}', function(done) {
       chai.request(server)
@@ -160,7 +158,7 @@ suite('Functional Tests', function() {
         })
         .end(function(err, res) {
           assert.equal(res.status, 200);
-          assert.equal(res.body.error, 'no fields update');
+          assert.equal(res.body.error, 'no update field(s) sent');
           assert.equal(res.body._id, testIssue1._id);
           done();
         });
@@ -170,7 +168,7 @@ suite('Functional Tests', function() {
       chai.request(server)
         .put('/api/issues/test_project')
         .send({
-          _id: '60c72b2f9b1d8b00155a0000', // valid format, fake id
+          _id: '60c72b2f9b1d8b00155a0000',
           issue_title: 'Fix'
         })
         .end(function(err, res) {
